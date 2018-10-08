@@ -16,8 +16,17 @@ resources:
     organization: aneumann
     space: deployable-repo-review
 
+- name: production-deployment
+  type: cf
+  source:
+    api: https://api.run.pivotal.io
+    username: {{cf-username}}
+    password: {{cf-password}}
+    organization: aneumann
+    space: deployable-repo-production
+
 jobs:
-- name: build and deploy review
+- name: build
   plan:
   - get: code-repository
     trigger: true
@@ -42,9 +51,82 @@ jobs:
           - -exc
           - |
             cd code-repository
-            ./gradlew test build
+
+            ./gradlew test
+
+- name: deploy review
+  plan:
+  - get: code-repository
+    passed: [build]
+    trigger: true
+  - task: deploy
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: openjdk
+          tag: '8-jdk'
+
+      inputs:
+      - name: code-repository
+
+      outputs:
+      - name: build-output
+
+      caches:
+      - path: .gradle
+
+      run:
+        path: bash
+        args:
+          - -exc
+          - |
+            cd code-repository
+
+            ./gradlew build
+
+            cp applications/demo-server/build/libs/demo-server-*.jar ../build-output
 
   - put: review-deployment
     params:
       manifest: code-repository/manifest-review.yml
-      path: code-repository/applications/demo-server/build/libs/demo-server-*.jar
+      path: build-output/demo-server-0.0.1-SNAPSHOT.jar
+
+- name: deploy production
+  plan:
+  - get: code-repository
+    passed: ["deploy review"]
+  - task: deploy
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: openjdk
+          tag: '8-jdk'
+
+      inputs:
+      - name: code-repository
+
+      outputs:
+      - name: build-output
+
+      caches:
+      - path: .gradle
+
+      run:
+        path: bash
+        args:
+          - -exc
+          - |
+            cd code-repository
+
+            ./gradlew build
+
+            cp applications/demo-server/build/libs/demo-server-*.jar ../build-output
+
+  - put: production-deployment
+    params:
+      manifest: code-repository/manifest-production.yml
+      path: build-output/demo-server-0.0.1-SNAPSHOT.jar
