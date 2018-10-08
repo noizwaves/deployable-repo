@@ -2,6 +2,12 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
+### AppContinuum
+/applications/build/
+/applications/*/build/
+/components/build/
+/components/*/build/
+
 ### STS ###
 .apt_generated
 .classpath
@@ -27,3 +33,5 @@
 
 .DS_Store
 *.bak
+
+/ci/variables.yml

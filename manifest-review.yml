@@ -1,0 +1,6 @@
+---
+applications:
+- name: deployable-repo
+  path: applications/demo-server/build/libs/demo-server-0.0.1-SNAPSHOT.jar
+  routes:
+  - route: deployable-repo-review.cfapps.io
