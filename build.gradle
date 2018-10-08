@@ -1,0 +1,39 @@
+buildscript {
+	ext {
+		springBootVersion = '2.0.5.RELEASE'
+		springVersion = '4.3.13.RELEASE'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+
+subprojects {
+
+	apply plugin: 'java'
+	defaultTasks "clean", "build"
+
+	group = 'io.pivotal.pal'
+	sourceCompatibility = 1.8
+
+	repositories {
+		mavenCentral()
+	}
+
+
+	dependencies {
+		compile "org.slf4j:slf4j-api:1.7.10"
+		testCompile "junit:junit:4.12"
+		testCompile "org.mockito:mockito-core:2.2.26"
+		testCompile "org.assertj:assertj-core:3.8.0"
+	}
+}
+

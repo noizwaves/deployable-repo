@@ -1,0 +1,4 @@
+rootProject.name = 'demo'
+
+include "applications:demo-server"
+include "components:demo-library"
